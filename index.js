@@ -1,3 +1,4 @@
+console.log("Received request body:", req.body);
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
