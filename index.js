@@ -8,7 +8,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // 🔐 Replace this with your actual store key from İşbank
-const storeKey = "your_store_key_here";
+const storeKey = "G-wagon63-Bently";
 
 app.post('/generate-hash', (req, res) => {
   console.log("Received request body:", req.body);
