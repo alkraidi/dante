@@ -7,66 +7,38 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const storeKey = "G-wagon63-Bently"; // Replace with your actual store key
+// 🔐 Replace this with your actual store key from İşbank
+const storeKey = "your_store_key_here";
 
 app.post('/generate-hash', (req, res) => {
   console.log("Received request body:", req.body);
 
   const {
-    amount,
-    BillToCompany = "",
-    BillToName = "",
-    callbackUrl = "",
     clientid,
-    currency,
-    failUrl,
-    hashAlgorithm = "ver3",
-    Instalment = "",
-    lang = "tr",
+    oid,
+    amount,
     okUrl,
-    refreshtime = "",
-    rnd,
-    storetype = "3d_pay_hosting",
-    TranType = "Auth"
+    failUrl,
+    islemtipi,
+    rnd
   } = req.body;
 
-  if (!amount || !clientid || !currency || !failUrl || !okUrl || !rnd) {
-    console.error("Missing required fields.");
-    return res.status(400).json({ error: "Cannot process your request. Required fields missing." });
+  // 🔒 Required field check
+  if (!clientid || !oid || !amount || !okUrl || !failUrl || !islemtipi || !rnd) {
+    return res.status(400).json({ error: "Missing required fields for hash generation." });
   }
 
-  try {
-    const hashData = [
-      amount,
-      BillToCompany,
-      BillToName,
-      callbackUrl,
-      clientid,
-      currency,
-      failUrl,
-      hashAlgorithm,
-      Instalment,
-      lang,
-      okUrl,
-      refreshtime,
-      rnd,
-      storetype,
-      TranType
-    ].join('|');
+  // 🔑 Official İşbank hash string structure
+  const hashString = clientid + oid + amount + okUrl + failUrl + islemtipi + rnd + storeKey;
 
-    const finalString = `${hashData}|${storeKey}`;
-    const hash = crypto.createHash('sha512').update(finalString, 'utf-8').digest('base64');
+  // 🧮 Generate the hash
+  const hash = crypto.createHash('sha512').update(hashString, 'utf-8').digest('base64');
 
-    console.log("Generated hash:", hash);
-
-    res.send({ hash });
-  } catch (err) {
-    console.error("Error generating hash:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
+  console.log("Generated hash:", hash);
+  res.send({ hash });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Hash server running on port ${PORT}`);
+  console.log(`✅ Hash server running on port ${PORT}`);
 });
